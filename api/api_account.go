@@ -4,6 +4,8 @@ import (
 	"demo_backend/model"
 	"demo_backend/tool"
 
+	"demo_backend/middleware"
+
 	"github.com/gogf/gf/v2/errors/gerror"
 
 	"github.com/gogf/gf/v2/frame/g"
@@ -58,12 +60,6 @@ func handler_api_account_create(r *ghttp.Request) {
 		r.Response.WriteJsonExit(g.Map{"status": false, "msg": gerror.Wrap(err, "handler_api_account_create")})
 	}
 
-	//step2 判断是否为管理员
-	accountid := r.Session.MustGet("accountId").Uint() //获取session里账号id
-	if !model.IsAccountIdAdministrator(accountid) {
-		r.Response.WriteJsonExit(g.Map{"status": false, "msg": "handler_api_account_create 您不是管理员，无法管理账户"})
-	}
-
 	// step3 操作数据
 	account := model.Account{Name: in.Name, Org: in.Org, Pass: in.Pass}
 	result := tool.GetGormConnection().Create(&account)
@@ -95,12 +91,8 @@ func handler_api_account_edit(r *ghttp.Request) {
 	if err := r.Parse(&in); err != nil {
 		r.Response.WriteJsonExit(g.Map{"status": false, "msg": gerror.Wrap(err, "handler_api_account_edit")})
 	}
-	//step2 判断是否为管理员
-	accountid := r.Session.MustGet("accountId").Uint() //获取session里账号id
-	if !model.IsAccountIdAdministrator(accountid) {
-		r.Response.WriteJsonExit(g.Map{"status": false, "msg": "handler_api_account_edit:您不是管理员，无法管理账户"})
-	}
 
+	accountid := r.Session.MustGet("accountId").Uint() //获取session里账号id
 	if in.ID == accountid {
 		// 不能编辑管理员账户
 		r.Response.WriteJsonExit(g.Map{
@@ -127,12 +119,8 @@ func handler_api_account_delete(r *ghttp.Request) {
 	if err := r.Parse(&in); err != nil {
 		r.Response.WriteJsonExit(g.Map{"status": false, "msg": gerror.Wrap(err, "handler_api_account_delete")})
 	}
-	//step2 判断是否为管理员
-	accountid := r.Session.MustGet("accountId").Uint() //获取session里账号id
-	if !model.IsAccountIdAdministrator(accountid) {
-		r.Response.WriteJsonExit(g.Map{"status": false, "msg": "handler_api_account_edit:您不是管理员，无法管理账户"})
-	}
 
+	accountid := r.Session.MustGet("accountId").Uint() //获取session里账号id
 	if in.ID == accountid {
 		// 不能删除管理员账户
 		r.Response.WriteJsonExit(g.Map{
@@ -153,11 +141,6 @@ func handler_api_account_delete(r *ghttp.Request) {
 
 func handler_api_account_getall(r *ghttp.Request) {
 	// 管理员获取所有账号信息
-	//判断是否为管理员
-	accountid := r.Session.MustGet("accountId").Uint() //获取session里账号id
-	if !model.IsAccountIdAdministrator(accountid) {
-		r.Response.WriteJsonExit(g.Map{"status": false, "msg": "handler_api_account_edit:您不是管理员，无法管理账户"})
-	}
 
 	//操作数据
 	var allaccounts []model.Account
@@ -176,9 +159,12 @@ func RouterGroup_ApiAccount(group *ghttp.RouterGroup) {
 	group.POST("/change_password", handler_api_account_change_password) ///api/account/change_password
 
 	// 管理员行为
-	group.POST("/create_account", handler_api_account_create) ///api/account/create_account
-	group.POST("/edit_account", handler_api_account_edit)     ///api/account/edit_account
-	group.POST("/delete_account", handler_api_account_delete) ///api/account/delete_account
-	group.POST("/getall_account", handler_api_account_getall) ///api/account/getall_account
+	group.Group("/", func(group *ghttp.RouterGroup) {
+		group.Middleware(middleware.MiddlewareIsAdmin)
+		group.POST("/create", handler_api_account_create) ///api/account/create
+		group.POST("/edit", handler_api_account_edit)     ///api/account/edit
+		group.POST("/delete", handler_api_account_delete) ///api/account/delete
+		group.POST("/getall", handler_api_account_getall) ///api/account/getall
+	})
 
 }

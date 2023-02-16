@@ -17,12 +17,13 @@ func main() {
 	s.Use(middleware.MiddlewareCORS)         //跨域
 
 	s.Group("/api", func(group *ghttp.RouterGroup) {
-		group.Group("/unauth", api.RouterGroup_ApiUnauth)   // 不需要鉴权的组
-		group.Middleware(middleware.MiddlewareAuth)         // 添加鉴权
-		group.Group("/account", api.RouterGroup_ApiAccount) // 账号类
+		group.Group("/unauth", api.RouterGroup_ApiUnauth) // 不需要登录的接口
 
-		group.Group("/staticmsg", api.RouterGroup_StaticMsg) // 账号类
-		group.Group("/test", api.RouterGroup_ApiTest)        // 需要鉴权的组都在api里
+		group.Middleware(middleware.MiddlewareAuth)         // 下列为需要登录的接口
+		group.Group("/account", api.RouterGroup_ApiAccount) // 账号类，其中有管理员操作
+
+		group.Group("/staticmsg", api.RouterGroup_StaticMsg) // 账号类，都是管理员操作
+		group.Group("/test", api.RouterGroup_ApiTest)
 
 	})
 
