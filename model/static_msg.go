@@ -65,5 +65,6 @@ type ProjectStaticMsg struct {
 }
 
 func init() {
-	tool.GetGormConnection().AutoMigrate(&ProjectStaticMsg{})
+	conn := tool.GetGormConnection()
+	conn.AutoMigrate(&ProjectStaticMsg{})
 }
