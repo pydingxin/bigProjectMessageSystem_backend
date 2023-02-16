@@ -151,6 +151,25 @@ func handler_api_account_delete(r *ghttp.Request) {
 	}
 }
 
+func handler_api_account_getall(r *ghttp.Request) {
+	// 管理员获取所有账号信息
+	//判断是否为管理员
+	accountid := r.Session.MustGet("accountId").Uint() //获取session里账号id
+	if !model.IsAccountIdAdministrator(accountid) {
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": "handler_api_account_edit:您不是管理员，无法管理账户"})
+	}
+
+	//操作数据
+	var allaccounts []model.Account
+	result := tool.GetGormConnection().Find(&allaccounts)
+	if result.Error != nil {
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": gerror.Wrap(result.Error, "handler_api_account_getall")})
+	} else {
+		r.Response.WriteJsonExit(g.Map{"status": true, "data": allaccounts})
+	}
+
+}
+
 func RouterGroup_ApiAccount(group *ghttp.RouterGroup) {
 	// 普通用户行为
 	group.POST("/logout", handler_api_account_logout)                   ///api/account/logout
@@ -160,5 +179,6 @@ func RouterGroup_ApiAccount(group *ghttp.RouterGroup) {
 	group.POST("/create_account", handler_api_account_create) ///api/account/create_account
 	group.POST("/edit_account", handler_api_account_edit)     ///api/account/edit_account
 	group.POST("/delete_account", handler_api_account_delete) ///api/account/delete_account
+	group.POST("/getall_account", handler_api_account_getall) ///api/account/getall_account
 
 }

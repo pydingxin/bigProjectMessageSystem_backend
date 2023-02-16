@@ -9,14 +9,14 @@ import (
 */
 type Account struct {
 	ID   uint   `gorm:"primaryKey" json:"key"`
-	Org  string `gorm:"size:256;not null" json:"org"`
-	Name string `gorm:"size:256;index:name;not null;unique" json:"name"`
-	Pass string `gorm:"size:256;not null" json:"pass"`
+	Org  string `gorm:"size:40;not null" json:"org"`
+	Name string `gorm:"size:40;index:name;not null;unique" json:"name"`
+	Pass string `gorm:"size:40;not null" json:"pass"`
 }
 
 ///handler_api_account_change_password
 type Input_ChangePassword struct {
-	Pass  string `v:"pass@required|length:4,30#请输入密码|密码长度为{min}到{max}位"`
+	Pass  string `v:"pass@required|length:4,40#请输入密码|密码长度为{min}到{max}位"`
 	Pass2 string `v:"pass2@required|same:Pass#请确认密码|两次输入密码不同"`
 }
 
