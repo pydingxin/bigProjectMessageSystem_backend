@@ -3,7 +3,6 @@ package api
 import (
 	"demo_backend/model"
 	"demo_backend/tool"
-	"fmt"
 
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
@@ -29,10 +28,9 @@ func handler_api_account_change_password(r *ghttp.Request) {
 	// step3 操作数据
 	result := tool.GetGormConnection().Model(&model.Account{}).Where("id = ?", accountid).Update("pass", in.Pass)
 	if result.Error != nil {
-		panic(result.Error)
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": result.Error})
 	} else if result.RowsAffected == 1 {
 		r.Response.WriteJsonExit(g.Map{"status": true, "msg": "修改密码成功"})
-		fmt.Print("更新密码 id=", accountid, " pass=", in.Pass)
 	} else {
 		r.Response.WriteJsonExit(g.Map{"status": false, "msg": "handler_api_account_change_password 修改密码失败"})
 	}
@@ -68,7 +66,7 @@ func handler_api_account_create(r *ghttp.Request) {
 	account := model.Account{Name: in.Name, Org: in.Org, Pass: in.Pass}
 	result := tool.GetGormConnection().Create(&account)
 	if result.Error != nil {
-		panic(result.Error)
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": result.Error})
 	} else if result.RowsAffected == 1 {
 		r.Response.WriteJsonExit(g.Map{"status": true, "msg": "创建账号成功", "data": account})
 	} else {
@@ -112,7 +110,7 @@ func handler_api_account_edit(r *ghttp.Request) {
 	account := model.Account{ID: in.ID, Name: in.Name, Org: in.Org, Pass: in.Pass}
 	result := tool.GetGormConnection().Save(&account)
 	if result.Error != nil {
-		panic(result.Error)
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": result.Error})
 	} else if result.RowsAffected == 1 {
 		r.Response.WriteJsonExit(g.Map{"status": true, "msg": "编辑账号成功", "data:": account})
 	} else {
@@ -143,7 +141,7 @@ func handler_api_account_delete(r *ghttp.Request) {
 	// step3 操作数据
 	result := tool.GetGormConnection().Delete(&model.Account{ID: in.ID})
 	if result.Error != nil {
-		panic(result.Error)
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": result.Error})
 	} else if result.RowsAffected == 1 {
 		r.Response.WriteJsonExit(g.Map{"status": true, "msg": "删除账号成功"})
 	} else {
