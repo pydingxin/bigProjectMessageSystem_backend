@@ -6,3 +6,4 @@ model包含数据库对应的数据模型，和handler输入输出的业务模�
 func init() {
 	tool.GetGormConnection().AutoMigrate(&Account{})
 }
+
