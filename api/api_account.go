@@ -4,6 +4,8 @@ import (
 	"demo_backend/model"
 	"demo_backend/tool"
 
+	"github.com/gogf/gf/v2/errors/gerror"
+
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 )
@@ -19,7 +21,7 @@ func handler_api_account_change_password(r *ghttp.Request) {
 	// step1 获取&校验
 	var in *model.Input_ChangePassword
 	if err := r.Parse(&in); err != nil {
-		r.Response.WriteJsonExit(g.Map{"status": false, "msg": err.Error()})
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": gerror.Wrap(err, `handler_api_account_change_password`)})
 	}
 
 	// 根据session里的账号id更新密码
@@ -28,7 +30,7 @@ func handler_api_account_change_password(r *ghttp.Request) {
 	// step3 操作数据
 	result := tool.GetGormConnection().Model(&model.Account{}).Where("id = ?", accountid).Update("pass", in.Pass)
 	if result.Error != nil {
-		r.Response.WriteJsonExit(g.Map{"status": false, "msg": result.Error})
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": gerror.Wrap(result.Error, "handler_api_account_change_password")})
 	} else if result.RowsAffected == 1 {
 		r.Response.WriteJsonExit(g.Map{"status": true, "msg": "修改密码成功"})
 	} else {
@@ -53,7 +55,7 @@ func handler_api_account_create(r *ghttp.Request) {
 	//step1 获取&校验
 	var in *model.Input_CreateAccount
 	if err := r.Parse(&in); err != nil {
-		r.Response.WriteJsonExit(g.Map{"status": false, "msg": err.Error()})
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": gerror.Wrap(err, "handler_api_account_create")})
 	}
 
 	//step2 判断是否为管理员
@@ -66,11 +68,11 @@ func handler_api_account_create(r *ghttp.Request) {
 	account := model.Account{Name: in.Name, Org: in.Org, Pass: in.Pass}
 	result := tool.GetGormConnection().Create(&account)
 	if result.Error != nil {
-		r.Response.WriteJsonExit(g.Map{"status": false, "msg": result.Error})
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": gerror.Wrap(result.Error, "handler_api_account_create")})
 	} else if result.RowsAffected == 1 {
 		r.Response.WriteJsonExit(g.Map{"status": true, "msg": "创建账号成功", "data": account})
 	} else {
-		r.Response.WriteJsonExit(g.Map{"status": false, "msg": "创建账号失败"})
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": "handler_api_account_create 创建账号失败"})
 	}
 }
 
@@ -91,30 +93,30 @@ func handler_api_account_edit(r *ghttp.Request) {
 	//step1 获取&校验
 	var in *model.Input_EditAccount
 	if err := r.Parse(&in); err != nil {
-		r.Response.WriteJsonExit(g.Map{"status": false, "msg": err.Error()})
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": gerror.Wrap(err, "handler_api_account_edit")})
 	}
 	//step2 判断是否为管理员
 	accountid := r.Session.MustGet("accountId").Uint() //获取session里账号id
 	if !model.IsAccountIdAdministrator(accountid) {
-		r.Response.WriteJsonExit(g.Map{"status": false, "msg": "handler_api_account_edit 您不是管理员，无法管理账户"})
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": "handler_api_account_edit:您不是管理员，无法管理账户"})
 	}
 
 	if in.ID == accountid {
 		// 不能编辑管理员账户
 		r.Response.WriteJsonExit(g.Map{
 			"status": false,
-			"msg":    "handler_api_account_edit 不可编辑管理员账户，您可以修改自己的密码。有疑问请联系开发者【丁鑫 18653923866】"})
+			"msg":    "handler_api_account_edit:不可编辑管理员账户，您可以修改自己的密码"})
 	}
 
 	// step3 操作数据
 	account := model.Account{ID: in.ID, Name: in.Name, Org: in.Org, Pass: in.Pass}
 	result := tool.GetGormConnection().Save(&account)
 	if result.Error != nil {
-		r.Response.WriteJsonExit(g.Map{"status": false, "msg": result.Error})
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": gerror.Wrap(result.Error, "handler_api_account_edit")})
 	} else if result.RowsAffected == 1 {
-		r.Response.WriteJsonExit(g.Map{"status": true, "msg": "编辑账号成功", "data:": account})
+		r.Response.WriteJsonExit(g.Map{"status": true, "msg": "handler_api_account_edit:编辑账号成功", "data:": account})
 	} else {
-		r.Response.WriteJsonExit(g.Map{"status": false, "msg": "编辑账号失败"})
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": "handler_api_account_edit:编辑账号失败"})
 	}
 }
 
@@ -123,29 +125,29 @@ func handler_api_account_delete(r *ghttp.Request) {
 	//step1 获取&校验
 	var in *model.Input_DeleteAccount
 	if err := r.Parse(&in); err != nil {
-		r.Response.WriteJsonExit(g.Map{"status": false, "msg": err.Error()})
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": gerror.Wrap(err, "handler_api_account_delete")})
 	}
 	//step2 判断是否为管理员
 	accountid := r.Session.MustGet("accountId").Uint() //获取session里账号id
 	if !model.IsAccountIdAdministrator(accountid) {
-		r.Response.WriteJsonExit(g.Map{"status": false, "msg": "handler_api_account_edit 您不是管理员，无法管理账户"})
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": "handler_api_account_edit:您不是管理员，无法管理账户"})
 	}
 
 	if in.ID == accountid {
 		// 不能删除管理员账户
 		r.Response.WriteJsonExit(g.Map{
 			"status": false,
-			"msg":    "handler_api_account_edit 不可删除管理员账户，有问题请联系开发者【丁鑫 18653923866】"})
+			"msg":    "handler_api_account_edit:不可删除管理员账户"})
 	}
 
 	// step3 操作数据
 	result := tool.GetGormConnection().Delete(&model.Account{ID: in.ID})
 	if result.Error != nil {
-		r.Response.WriteJsonExit(g.Map{"status": false, "msg": result.Error})
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": gerror.Wrap(result.Error, "handler_api_account_delete")})
 	} else if result.RowsAffected == 1 {
 		r.Response.WriteJsonExit(g.Map{"status": true, "msg": "删除账号成功"})
 	} else {
-		r.Response.WriteJsonExit(g.Map{"status": false, "msg": "删除账号失败"})
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": "handler_api_account_delete:删除账号失败"})
 	}
 }
 
