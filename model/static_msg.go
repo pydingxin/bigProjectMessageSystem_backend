@@ -2,8 +2,6 @@ package model
 
 import (
 	"demo_backend/tool"
-
-	"gorm.io/gorm"
 )
 
 /*
@@ -11,8 +9,7 @@ import (
 */
 type ProjectStaticMsg struct {
 	//项目id
-	ID        uint           `gorm:"primaryKey" json:"key"`
-	DeletedAt gorm.DeletedAt `gorm:"index"`
+	ID uint `gorm:"primaryKey" json:"key"`
 
 	//序号
 	Index uint `json:"index"` //主键必须唯一

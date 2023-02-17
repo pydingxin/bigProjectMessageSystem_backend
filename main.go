@@ -22,9 +22,10 @@ func main() {
 		group.Middleware(middleware.MiddlewareAuth)         // 下列为需要登录的接口
 		group.Group("/account", api.RouterGroup_ApiAccount) // 账号类，其中有管理员操作
 
-		group.Group("/staticmsg", api.RouterGroup_StaticMsg)   // 账号类，都是管理员操作
-		group.Group("/dynamicmsg", api.RouterGroup_DynamicMsg) // 账号类，都是管理员操作
-		group.Group("/test", api.RouterGroup_ApiTest)
+		group.Group("/staticmsg", api.RouterGroup_StaticMsg)   //静态信息管理，都是管理员操作
+		group.Group("/dynamicmsg", api.RouterGroup_DynamicMsg) // 动态信息管理
+		group.Group("/media", api.RouterGroup_Media)           //附件文件管理
+		group.Group("/test", api.RouterGroup_ApiTest)          //
 
 	})
 

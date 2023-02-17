@@ -70,6 +70,9 @@ func handler_api_staticmsg_delete(r *ghttp.Request) {
 	} else if result.RowsAffected == 1 {
 		model.Delete_dynamicMsg_by_projectId(projectKey) //删除动态信息及其历史
 		model.Delete_dynamicHistory_by_projectId(projectKey)
+
+		model.DeleteFileMsgByProjectid(projectKey) //删除项目文件
+
 		r.Response.WriteJsonExit(g.Map{"status": true, "msg": "删除项目信息成功"})
 	} else {
 		r.Response.WriteJsonExit(g.Map{"status": false, "msg": "handler_api_staticmsg_delete:未删除任何项目信息"})
