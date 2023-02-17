@@ -160,14 +160,24 @@ func handler_api_account_getall(r *ghttp.Request) {
 	} else {
 		r.Response.WriteJsonExit(g.Map{"status": true, "data": allaccounts})
 	}
+}
 
+func handler_api_account_allkeyorg(r *ghttp.Request) {
+	//普通用户获取所有账号的key org信息
+	var allaccounts []model.Account
+	result := tool.GetGormConnection().Select("id", "org").Find(&allaccounts)
+	if result.Error != nil {
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": gerror.Wrap(result.Error, "handler_api_account_allkeyorg")})
+	} else {
+		r.Response.WriteJsonExit(g.Map{"status": true, "data": allaccounts})
+	}
 }
 
 func RouterGroup_ApiAccount(group *ghttp.RouterGroup) {
 	// 普通用户行为
 	group.POST("/logout", handler_api_account_logout)                   ///api/account/logout
 	group.POST("/change_password", handler_api_account_change_password) ///api/account/change_password
-
+	group.POST("/allkeyorg", handler_api_account_allkeyorg)             ///api/account/allkeyorg
 	// 管理员行为
 	group.Group("/", func(group *ghttp.RouterGroup) {
 		group.Middleware(middleware.MiddlewareIsAdmin)
