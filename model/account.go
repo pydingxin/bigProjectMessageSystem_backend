@@ -16,8 +16,8 @@ type Account struct {
 
 ///handler_api_account_change_password
 type Input_ChangePassword struct {
-	Pass  string `v:"pass@required|length:4,40#请输入密码|密码长度为{min}到{max}位"`
-	Pass2 string `v:"pass2@required|same:Pass#请确认密码|两次输入密码不同"`
+	Passold string `v:"passold@required|length:4,40#请输入旧密码|密码长度为{min}到{max}位"`
+	Passnew string `v:"passnew@required|length:4,40#请输入新密码|密码长度为{min}到{max}位"`
 }
 
 //handler_api_account_create

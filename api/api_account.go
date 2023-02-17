@@ -30,7 +30,17 @@ func handler_api_account_change_password(r *ghttp.Request) {
 	accountid := r.Session.MustGet("accountId").Uint()
 
 	// step3 操作数据
-	result := tool.GetGormConnection().Model(&model.Account{}).Where("id = ?", accountid).Update("pass", in.Pass)
+	var account model.Account
+	result2 := tool.GetGormConnection().Where("id = ?", accountid).Find(&account)
+	if result2.Error != nil {
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": gerror.Wrap(result2.Error, "handler_api_account_change_password")})
+	} else {
+		if account.Pass != in.Passold {
+			r.Response.WriteJsonExit(g.Map{"status": false, "msg": "旧密码输入错误"})
+		}
+	}
+
+	result := tool.GetGormConnection().Model(&model.Account{}).Where("id = ?", accountid).Update("pass", in.Passnew)
 	if result.Error != nil {
 		r.Response.WriteJsonExit(g.Map{"status": false, "msg": gerror.Wrap(result.Error, "handler_api_account_change_password")})
 	} else if result.RowsAffected == 1 {
