@@ -24,6 +24,10 @@ func handler_api_dynamicmsg_submit(r *ghttp.Request) {
 		Accountid: r.Session.MustGet("accountId").Uint(),
 	}
 
+	if item.Projectid == 0 || item.Field == "" {
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": "handler_api_dynamicmsg_submit key或field缺失"})
+	}
+
 	result := tool.GetGormConnection().Create(&item)
 	if result.Error != nil {
 		r.Response.WriteJsonExit(g.Map{"status": false, "msg": gerror.Wrap(result.Error, "handler_api_dynamicmsg_submit")})
@@ -58,6 +62,11 @@ func handler_api_dynamicmsg_submitHistory(r *ghttp.Request) {
 	// 获取项目的某域的编辑历史
 	projectKey := r.Get("key").Uint()
 	field := r.Get("field").String()
+
+	if projectKey == 0 || field == "" {
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": "handler_api_dynamicmsg_submitHistory key或field缺失"})
+	}
+
 	var history []model.DynamicHistory
 	result := tool.GetGormConnection().Where("projectid = ? and field = ?", projectKey, field).Find(&history)
 	if result.Error != nil {

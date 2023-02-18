@@ -25,7 +25,6 @@ func main() {
 		group.Group("/staticmsg", api.RouterGroup_StaticMsg)   //静态信息管理，都是管理员操作
 		group.Group("/dynamicmsg", api.RouterGroup_DynamicMsg) // 动态信息管理
 		group.Group("/media", api.RouterGroup_Media)           //附件文件管理
-		group.Group("/test", api.RouterGroup_ApiTest)          //
 
 	})
 

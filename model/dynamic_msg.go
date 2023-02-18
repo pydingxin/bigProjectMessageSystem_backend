@@ -15,11 +15,11 @@ import (
 
 // 立项 用地 规划 环评 能评 许可证 形象进度 年度投资的历史
 type DynamicHistory struct {
+	Accountid uint      `json:"userkey"`
 	Projectid uint      `gorm:"index:projectfield" json:"xmkey"`
 	Field     string    `gorm:"index:projectfield;size:20" json:"field"` //字段名，lixaing/yongdi/...
 	Content   string    `gorm:"size:500" json:"content"`                 //内容,都保存为字符串
 	CreatedAt time.Time `json:"time"`
-	Accountid uint      `json:"userkey"`
 }
 
 type ProjectDynamicMsg struct {
@@ -51,8 +51,8 @@ func Delete_dynamicHistory_by_projectId(id uint) {
 	tool.GetGormConnection().Where("Projectid = ?", id).Delete(&DynamicHistory{})
 }
 
-// 当提报一条动态信息到DynamicHistory时，也要保存在ProjectDynamicMsg
 func Save_dynamicHistory_to_ProjectDynamicMsg(r *ghttp.Request) {
+	// 当提报一条动态信息到DynamicHistory时，也要保存在ProjectDynamicMsg
 	projectid := r.Get("key").Uint()
 	field := r.Get("field").String()
 	content := r.Get("content")

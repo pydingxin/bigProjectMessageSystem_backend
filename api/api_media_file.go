@@ -2,6 +2,7 @@ package api
 
 import (
 	"demo_backend/model"
+	"demo_backend/tool"
 
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
@@ -58,22 +59,45 @@ func handler_api_media_delete(r *ghttp.Request) {
 	accountid := r.Session.MustGet("accountId").String()
 	projectid := r.Get("projectid").String()
 	filename := r.Get("filename").String()
+
+	if filename == "" || projectid == "" {
+		r.Response.WriteJsonExit(g.Map{
+			"status": false,
+			"msg":    "handler_api_media_delete: filename 或 projectid 缺失"})
+	}
+
 	dirpath := gfile.Join("./media", projectid, accountid, filename)
 
 	if err := gfile.Remove(dirpath); err != nil {
-		r.Response.WriteJsonExit(g.Map{"status": false, "msg": gerror.Wrap(err, "handler_api_media_delfile")})
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": gerror.Wrap(err, "handler_api_media_delete")})
 	} else {
 		model.DeleteFileMsg(projectid, accountid, filename)
 		r.Response.WriteJsonExit(g.Map{"status": true})
 	}
+}
 
+func handler_api_media_filemsgs(r *ghttp.Request) {
+	// 获取一个项目的所有文件信息
+	projectid := r.Get("projectid").Uint()
+	if projectid == 0 {
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": "handler_api_media_filemsgs: projectid 缺失"})
+	}
+
+	var filemsgs []model.MediaFileMsg
+	result := tool.GetGormConnection().Where("projectid = ?", projectid).Find(&filemsgs)
+	if result.Error != nil {
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": gerror.Wrap(result.Error, "handler_api_media_filemsgs")})
+	} else {
+		r.Response.WriteJsonExit(g.Map{"status": true, "data": filemsgs})
+	}
 }
 
 func RouterGroup_Media(group *ghttp.RouterGroup) {
 
-	group.POST("/upload/{projectid}", handler_api_media_upload) ///api/media/upload
-	group.POST("/delete/{projectid}", handler_api_media_delete) ///api/media/delete
+	group.POST("/upload/{projectid}", handler_api_media_upload)     ///api/media/upload
+	group.POST("/delete/{projectid}", handler_api_media_delete)     ///api/media/delete
+	group.POST("/filemsgs/{projectid}", handler_api_media_filemsgs) ///api/media/filemsgs
 
-	// group.GET("/uploadshow", UploadShowBatch)
+	group.GET("/uploadshow", UploadShowBatch) //测试界面
 
 }

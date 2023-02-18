@@ -40,6 +40,7 @@ func handler_api_staticmsg_edit(r *ghttp.Request) {
 	if err := r.Parse(&in); err != nil {
 		r.Response.WriteJsonExit(g.Map{"status": false, "msg": gerror.Wrap(err, "handler_api_staticmsg_edit")})
 	}
+
 	if in.ID == 0 {
 		// id为零会创建新数据
 		r.Response.WriteJsonExit(g.Map{"status": false, "msg": "handler_api_staticmsg_edit：缺失项目key"})

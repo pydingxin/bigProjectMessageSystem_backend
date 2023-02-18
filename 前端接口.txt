@@ -1,0 +1,193 @@
+function mypost(api, jsondata){
+    return new Promise(res=>{
+        fetch("http://localhost/api"+api,{
+            method:'POST',
+            body:JSON.stringify(jsondata),
+            mode: 'cors',
+            credentials: 'include',
+        })  
+        .then(response => response.json())
+        .then(data => {
+            if(data.status===false){alert(data.msg)}
+            console.log("后端返回 ",data)
+            res(data)
+        });
+    })
+}
+
+# ############################################
+# # api_unauth.go
+mypost("/unauth/account/login",{
+    name:"admin", pass:"dingxin"
+})
+{
+    "data": {
+        "key": 1,
+        "org": "管理员",
+        "name": "admin",
+        "pass": "dingxin"
+    },
+    "status": true
+}
+# 通用接口
+
+# ############################################
+# # api_account.go
+mypost("/account/logout")
+{status: true}
+# 通用接口
+
+# -----------------------------------
+mypost("/account/change_password",{
+    passold:"dingxin",passnew:"dingxin2"
+})
+{msg: '修改密码成功', status: true}
+# 通用接口
+
+# -----------------------------------
+mypost("/account/create",{
+    name:"pyxfgj",
+    pass:"123456",
+    org:"平邑县发改局"
+})
+data: {key: 2, org: '平邑县发改局', name: 'pyxfgj', pass: '123456'}
+msg: "创建账号成功"
+status: true
+管理员接口
+
+# -----------------------------------
+mypost("/account/edit",{
+    key:2,
+    name:"pyxfgj",
+    pass:"123456",
+    org:"平邑县3发改局"
+})
+data:{key: 2, org: '平邑县3发改局', name: 'pyxfgj', pass: '123456'}
+msg:"handler_api_account_edit:编辑账号成功"
+status:true
+管理员接口
+
+# -----------------------------------
+mypost("/account/delete",{
+    key:2
+})
+{msg: '删除账号成功', status: true}
+管理员接口
+
+# -----------------------------------
+mypost("/account/getall")
+data: (2) [{…}, {…}]
+status: true
+管理员接口，获取所有账号信息
+# -----------------------------------
+mypost("/account/allkeyorg")
+同上，但name&pass是空的，给普通账户用的
+
+
+# ############################################
+# # api_static.go 项目静态信息管理
+# -----------------------------------
+mypost("/staticmsg/create",{
+    name:"兴水河改造项目"
+})
+{data: {allcost: 0,builder: "",contact:"",costfrom:"",dutyorg:null,hadcost:0,index:0,jibie:"",jungong:"",kaigong:"",key:1,leader:"",lingyu:"",name:"兴水河改造项目",neroguimo:"",place:"",xingzhi:"",yearcost:0,yearnode:"",yearplan:""}, 
+  msg: '创建项目成功', status: true}
+# 管理员接口，必须有name
+
+# -----------------------------------
+mypost("/staticmsg/edit",{
+    name:"兴水河改造项目",
+    key:1,
+    dutyorg:[2,3],
+    contact:"丁鑫 18653923866"
+})
+# 返回格式同上
+# 管理员接口，必须有key
+
+# -----------------------------------
+mypost("/staticmsg/delete",{
+    key:1,
+})
+{msg: '删除项目信息成功', status: true}
+# 管理员接口
+
+# -----------------------------------
+mypost("/staticmsg/getall")
+# 返回的data是所有项目静态信息的数组
+# 通用接口，获取所有项目信息
+
+# -----------------------------------
+mypost("/staticmsg/getbykey",{
+    key:1,
+})
+# 通用接口，获取单个项目信息
+
+# ############################################
+# # api_dynamic_msg.go 项目动态信息管理
+# 动态信息是历史记录，不能主动删除
+# -----------------------------------
+mypost("/dynamicmsg/submit",{
+    key:2,
+    field:"lixiang",
+    content:{status:"done",msg:"立项已完成"},
+})
+{
+    data: {userkey: 1, xmkey: 2, field: 'lixiang', content: '{"msg":"立项已完成","status":"done"}', time: '2023-02-18T17:23:23.3906724+08:00'}
+    msg: "提报成功"
+    status: true
+}
+# 提报一条项目动态信息
+# 可以加一条检查，不允许无关人填报
+
+# -----------------------------------
+mypost("/dynamicmsg/getbyid",{
+    key:2,
+})
+{data:{
+    Projectid:2
+    guihua:""
+    huanping:""
+    lixiang:"{\"msg\":\"立项已完成\",\"status\":\"done\"}"
+    nengping:""
+    xingxiang:""
+    xukezheng:""
+    yearcosted:0
+    yongdi:""},
+status:true
+}
+# 获取一个项目所有条目的动态信息，单个条目用JSON.parse取出即可
+
+
+# -----------------------------------
+mypost("/dynamicmsg/submitHistory",{
+    key:2,
+    field:"lixiang"
+})
+{data: [
+    {userkey: 1, xmkey: 2, field: 'lixiang', content: '{"msg":"立项已完成","status":"done"}', time: '2023-02-18T17:23:23.3906724+08:00'},
+    {userkey: 1, xmkey: 2, field: 'lixiang', content: '{"msg":"立项已完成","status":"done"}', time: '2023-02-18T17:28:16.7531992+08:00'}
+],
+status: true}
+# 获取一个项目某条目动态信息的提报历史
+
+# ############################################
+# # api_media_file.go 项目文件信息管理
+# -----------------------------------
+mypost("/media/upload/{projectid}")
+{"data":["表头.xlsx"],"status":true}
+# 文件名在body里
+# 提交项目文件， 考虑检查参数
+
+# -----------------------------------
+mypost("/media/delete/{projectid}",{
+    filename:"表头.xlsx",
+})
+# 删除一个项目文件
+
+# -----------------------------------
+mypost("/media/filemsgs/{projectid}")
+data:[
+    {Projectid: 3, Accountid: 1, Filename: 'pnpm-lock.yaml', time: '0001-01-01T00:00:00Z'}
+    {Projectid: 3, Accountid: 1, Filename: 'vite.config.ts', time: '0001-01-01T00:00:00Z'}
+]
+# 获取一个项目的文件信息

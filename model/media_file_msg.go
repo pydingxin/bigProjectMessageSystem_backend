@@ -2,6 +2,7 @@ package model
 
 import (
 	"demo_backend/tool"
+	"time"
 
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/os/gfile"
@@ -9,12 +10,13 @@ import (
 )
 
 /*
-	媒体文件信息表
+媒体文件信息表
 */
 type MediaFileMsg struct {
-	Projectid uint   `gorm:"index:index1;"`
-	Accountid uint   `gorm:"index:index2;"`
-	Filename  string `gorm:"index:index3;size:50"`
+	Projectid uint      `gorm:"index:index1;"`
+	Accountid uint      `gorm:"index:index2;"`
+	Filename  string    `gorm:"index:index3;size:50"`
+	CreatedAt time.Time `json:"time"`
 }
 
 func SaveFileMsgs(projectid, accountid string, filenames *[]string) {
