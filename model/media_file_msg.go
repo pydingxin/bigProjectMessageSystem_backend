@@ -31,12 +31,16 @@ func SaveFileMsgs(projectid, accountid string, filenames *[]string) {
 	}
 }
 
-func DeleteFileMsg(projectid, accountid, filename string) {
+func DeleteFileMsg(projectid, accountid, filename string) bool {
 	// 单个文件信息删除
 	result := tool.GetGormConnection().Where("projectid = ? and accountid = ? and filename = ?",
 		gconv.Uint(projectid), gconv.Uint(accountid), filename).Delete(&MediaFileMsg{})
 	if result.Error != nil {
 		panic(gerror.Wrap(result.Error, "deleteFileMsg"))
+	} else if result.RowsAffected == 1 {
+		return true
+	} else {
+		return false
 	}
 }
 

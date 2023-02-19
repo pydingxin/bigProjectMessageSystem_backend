@@ -8,6 +8,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gfile"
+	"github.com/gogf/gf/v2/util/gconv"
 )
 
 // UploadShowBatch shows uploading multiple files page.
@@ -66,13 +67,19 @@ func handler_api_media_delete(r *ghttp.Request) {
 			"msg":    "handler_api_media_delete: filename 或 projectid 缺失"})
 	}
 
-	dirpath := gfile.Join("./media", projectid, accountid, filename)
+	dirpath := gfile.Join(".", "media", projectid, accountid, filename)
+	if false == gfile.Exists(dirpath) {
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": "该文件可能由其他责任单位上传，您无权删除"})
+	}
 
 	if err := gfile.Remove(dirpath); err != nil {
 		r.Response.WriteJsonExit(g.Map{"status": false, "msg": gerror.Wrap(err, "handler_api_media_delete")})
 	} else {
-		model.DeleteFileMsg(projectid, accountid, filename)
-		r.Response.WriteJsonExit(g.Map{"status": true})
+		if model.DeleteFileMsg(projectid, accountid, filename) {
+			r.Response.WriteJsonExit(g.Map{"status": true})
+		} else {
+			r.Response.WriteJsonExit(g.Map{"status": false, "msg": "删除失败"})
+		}
 	}
 }
 
@@ -92,11 +99,28 @@ func handler_api_media_filemsgs(r *ghttp.Request) {
 	}
 }
 
+func handler_api_media_download(r *ghttp.Request) {
+	// 下载文件 /api/media/download/{projectid}/{accountid}/{filename}"
+	projectid := r.Get("projectid").Uint()
+	accountid := r.Get("accountid").Uint()
+	filename := r.Get("filename").String()
+	if projectid == 0 || accountid == 0 || filename == "" {
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": "handler_api_media_download：参数不全"})
+	}
+
+	dirpath := gfile.Join(".", "media", gconv.String(projectid), gconv.String(accountid), filename)
+	if false == gfile.Exists(dirpath) {
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": "该文件可能由其他责任单位上传，您无权删除"})
+	}
+}
+
 func RouterGroup_Media(group *ghttp.RouterGroup) {
 
 	group.POST("/upload/{projectid}", handler_api_media_upload)     ///api/media/upload
 	group.POST("/delete/{projectid}", handler_api_media_delete)     ///api/media/delete
 	group.POST("/filemsgs/{projectid}", handler_api_media_filemsgs) ///api/media/filemsgs
+
+	group.POST("/download/{projectid}/{accountid}/{filename}", handler_api_media_download) ///api/media/download
 
 	group.GET("/uploadshow", UploadShowBatch) //测试界面
 
