@@ -23,7 +23,7 @@ type DynamicHistory struct {
 }
 
 type ProjectDynamicMsg struct {
-	Projectid  uint
+	Projectid  uint   `json:"key"`
 	Lixiang    string `gorm:"size:200" json:"lixiang"`
 	Yongdi     string `gorm:"size:200" json:"yongdi"`
 	Guihua     string `gorm:"size:200" json:"guihua"`
