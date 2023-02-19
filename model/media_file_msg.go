@@ -31,13 +31,13 @@ func SaveFileMsgs(projectid, accountid string, filenames *[]string) {
 	}
 }
 
-func DeleteFileMsg(projectid, accountid, filename string) bool {
+func DeleteFileMsg(projectid, filename string) bool {
 	// 单个文件信息删除
-	result := tool.GetGormConnection().Where("projectid = ? and accountid = ? and filename = ?",
-		gconv.Uint(projectid), gconv.Uint(accountid), filename).Delete(&MediaFileMsg{})
+	result := tool.GetGormConnection().Where("projectid = ? and filename = ?",
+		gconv.Uint(projectid), filename).Delete(&MediaFileMsg{})
 	if result.Error != nil {
 		panic(gerror.Wrap(result.Error, "deleteFileMsg"))
-	} else if result.RowsAffected == 1 {
+	} else if result.RowsAffected >= 1 {
 		return true
 	} else {
 		return false
@@ -47,7 +47,7 @@ func DeleteFileMsg(projectid, accountid, filename string) bool {
 func DeleteFileMsgByProjectid(proid uint) {
 	// 删除整个项目的文件信息，并删除其文件。删除项目时使用
 	tool.GetGormConnection().Where("projectid = ?", proid).Delete(&MediaFileMsg{})
-	dirpath := gfile.Join("./media", gconv.String(proid))
+	dirpath := gfile.Join(".", "static", "media", gconv.String(proid))
 	gfile.Remove(dirpath)
 }
 

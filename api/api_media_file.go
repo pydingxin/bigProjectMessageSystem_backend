@@ -8,7 +8,6 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gfile"
-	"github.com/gogf/gf/v2/util/gconv"
 )
 
 // UploadShowBatch shows uploading multiple files page.
@@ -35,9 +34,10 @@ func handler_api_media_upload(r *ghttp.Request) {
 		session的accountid，header的projectid，路径为./media/projectid/accountid/filename
 	*/
 	//获取路径
-	accountid := r.Session.MustGet("accountId").String()
 	projectid := r.Get("projectid").String()
-	dirpath := gfile.Join("./media", projectid, accountid)
+	dirpath := gfile.Join(".", "static", "media", projectid)
+
+	accountid := r.Session.MustGet("accountId").String()
 
 	//保存文件
 	files := r.GetUploadFiles("upload-file") // 前端file input的name是 upload-file
@@ -57,7 +57,6 @@ func handler_api_media_delete(r *ghttp.Request) {
 		session的accountid，header的projectid，路径为./media/projectid/accountid/filename
 	*/
 	//获取路径
-	accountid := r.Session.MustGet("accountId").String()
 	projectid := r.Get("projectid").String()
 	filename := r.Get("filename").String()
 
@@ -67,15 +66,15 @@ func handler_api_media_delete(r *ghttp.Request) {
 			"msg":    "handler_api_media_delete: filename 或 projectid 缺失"})
 	}
 
-	dirpath := gfile.Join(".", "media", projectid, accountid, filename)
+	dirpath := gfile.Join(".", "static", "media", projectid, filename)
 	if false == gfile.Exists(dirpath) {
-		r.Response.WriteJsonExit(g.Map{"status": false, "msg": "该文件可能由其他责任单位上传，您无权删除"})
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": "此文件已不存在"})
 	}
 
 	if err := gfile.Remove(dirpath); err != nil {
 		r.Response.WriteJsonExit(g.Map{"status": false, "msg": gerror.Wrap(err, "handler_api_media_delete")})
 	} else {
-		if model.DeleteFileMsg(projectid, accountid, filename) {
+		if model.DeleteFileMsg(projectid, filename) {
 			r.Response.WriteJsonExit(g.Map{"status": true})
 		} else {
 			r.Response.WriteJsonExit(g.Map{"status": false, "msg": "删除失败"})
@@ -99,29 +98,12 @@ func handler_api_media_filemsgs(r *ghttp.Request) {
 	}
 }
 
-func handler_api_media_download(r *ghttp.Request) {
-	// 下载文件 /api/media/download/{projectid}/{accountid}/{filename}"
-	projectid := r.Get("projectid").Uint()
-	accountid := r.Get("accountid").Uint()
-	filename := r.Get("filename").String()
-	if projectid == 0 || accountid == 0 || filename == "" {
-		r.Response.WriteJsonExit(g.Map{"status": false, "msg": "handler_api_media_download：参数不全"})
-	}
-
-	dirpath := gfile.Join(".", "media", gconv.String(projectid), gconv.String(accountid), filename)
-	if false == gfile.Exists(dirpath) {
-		r.Response.WriteJsonExit(g.Map{"status": false, "msg": "该文件可能由其他责任单位上传，您无权删除"})
-	}
-}
-
 func RouterGroup_Media(group *ghttp.RouterGroup) {
 
 	group.POST("/upload/{projectid}", handler_api_media_upload)     ///api/media/upload
 	group.POST("/delete/{projectid}", handler_api_media_delete)     ///api/media/delete
 	group.POST("/filemsgs/{projectid}", handler_api_media_filemsgs) ///api/media/filemsgs
 
-	group.POST("/download/{projectid}/{accountid}/{filename}", handler_api_media_download) ///api/media/download
-
-	group.GET("/uploadshow", UploadShowBatch) //测试界面
+	// group.GET("/uploadshow", UploadShowBatch) //测试界面
 
 }
