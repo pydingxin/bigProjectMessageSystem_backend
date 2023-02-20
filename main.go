@@ -16,7 +16,7 @@ func main() {
 	s.Use(middleware.MiddlewareErrorHandler) //异常日志
 	s.Use(middleware.MiddlewareCORS)         //跨域
 
-	s.Domain("localhost").Group("/api", func(group *ghttp.RouterGroup) {
+	s.Group("/api", func(group *ghttp.RouterGroup) {
 		group.Group("/unauth", api.RouterGroup_ApiUnauth) // 不需要登录的接口
 
 		group.Middleware(middleware.MiddlewareAuth)         // 下列为需要登录的接口

@@ -5,7 +5,6 @@ server:
   maxHeaderBytes:      "10485760"                      # 请求Header大小限制（Byte）。默认为10KB
   keepAlive:           true                         # 是否开启Keep-Alive功能。默认true
   idleTimeout:         "60s"                        # 仅当Keep-Alive开启时有效，请求闲置时间。默认为60秒
-  serverAgent:         "GoFrame HTTP Server"        # 服务端Agent信息。默认为"GoFrame HTTP Server"
 
 logger:
   level : "all"
@@ -18,4 +17,4 @@ logger:
   Flags : 44 #日期 时:分:秒:毫秒 文件:行号
 
 database:
-  dsn : "sqlserver://sa:dingxin@localhost:1433?database=fagaiju"
+  dsn : "sqlserver://dingxin:dingxin@localhost:1433?database=fagaiju"
