@@ -16,7 +16,7 @@ func main() {
 	s.Use(middleware.MiddlewareErrorHandler) //异常日志
 	s.Use(middleware.MiddlewareCORS)         //跨域
 
-	s.Group("/api", func(group *ghttp.RouterGroup) {
+	s.Domain("localhost").Group("/api", func(group *ghttp.RouterGroup) {
 		group.Group("/unauth", api.RouterGroup_ApiUnauth) // 不需要登录的接口
 
 		group.Middleware(middleware.MiddlewareAuth)         // 下列为需要登录的接口
@@ -28,7 +28,7 @@ func main() {
 
 	})
 
-	s.SetPort(80)
+	s.SetPort(8080)
 	s.SetIndexFolder(true) //静态文件
 	s.SetServerRoot("./static")
 	s.Run()

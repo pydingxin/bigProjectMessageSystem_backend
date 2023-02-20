@@ -66,7 +66,7 @@ func init() {
 	} else if result.RowsAffected == 0 {
 		// id为1的没有，则账户库表是空的，则初始化
 		var users = []Account{
-			{Org: "系统管理员", Name: "admin", Pass: "dingxin"},
+			{Org: "系统管理员", Name: "admin", Pass: "FaGaiJu666!"},
 			{Org: "平邑县发改局", Name: "pyxfgj", Pass: "123456"},
 			{Org: "平邑县教体局", Name: "pyxjtj", Pass: "123456"},
 		}

@@ -1,0 +1,1 @@
+gf build main.go

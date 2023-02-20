@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 )
 
@@ -16,7 +17,7 @@ func MiddlewareAuth(r *ghttp.Request) {
 	if session_alive.Bool() {
 		r.Middleware.Next()
 	} else {
-		r.Response.WriteExit("请先登录")
+		r.Response.WriteJsonExit(g.Map{"status": false, "msg": "请先登录"})
 	}
 
 }
