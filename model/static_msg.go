@@ -20,13 +20,13 @@ type ProjectStaticMsg struct {
 	//建设性质
 	Xingzhi string `gorm:"size:50" json:"xingzhi"`
 	//建设级别
-	Jibie string `gorm:"size:50" json:"jibie"`
+	Jibie string `gorm:"index:jibie;size:50" json:"jibie"`
 	//建设领域
-	Lingyu string `gorm:"size:50" json:"lingyu"`
+	Lingyu string `gorm:"index:lingyu;size:50" json:"lingyu"`
 
 	// 干系人
 	//责任领导
-	Leader string `gorm:"size:100" json:"leader"`
+	Leader string `gorm:"index:leader;size:100" json:"leader"`
 	//责任单位id列表 就是Account的id
 	Dutyorg []uint `gorm:"size:100;serializer:json" json:"dutyorg"`
 	//联系方式
